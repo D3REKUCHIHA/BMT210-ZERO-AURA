@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #87ceeb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .stopwatch-container {
+            background-color: skyblue;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .student-ids {
+            margin-bottom: 20px;
+        }
+        .student-ids p {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .time-display {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-around;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+
+    <div class="stopwatch-container">
+        <div class="student-ids">
+            <p>BIM/22/2059</p>
+            <p>BIM/22/2052</p>
+            <p>BIM/22/2049</p>
+            <p>BIM/22/2091</p>
+            <p>BIM/22/2083</p>
+        </div>
+        <div id="time-display" class="time-display">00:00:00</div>
+        <div class="button-container">
+            <button id="start-btn" py-click="start_stopwatch()">Start</button>
+            <button id="stop-btn" py-click="stop_stopwatch()" disabled>Stop</button>
+            <button id="reset-btn" py-click="reset_stopwatch()" disabled>Reset</button>
+        </div>
+    </div>
+
+    <py-script>
+        import asyncio
+        from js import document
+
+        hours = 0
+        minutes = 0
+        seconds = 0
+        running = False
+
+        async def update_time():
+            global hours, minutes, seconds, running
+            while running:
+                await asyncio.sleep(1)
+                seconds += 1
+                if seconds == 60:
+                    seconds = 0
+                    minutes += 1
+                    if minutes == 60:
+                        minutes = 0
+                        hours += 1
+                update_time_display()
+
+        def update_time_display():
+            formatted_time = f"{hours:02}:{minutes:02}:{seconds:02}"
+            document.getElementById('time-display').innerText = formatted_time
+
+        def start_stopwatch():
+            global running
+            running = True
+            asyncio.ensure_future(update_time())
+            document.getElementById('start-btn').disabled = True
+            document.getElementById('stop-btn').disabled = False
+            document.getElementById('reset-btn').disabled = False
+
+        def stop_stopwatch():
+            global running
+            running = False
+            document.getElementById('start-btn').disabled = False
+            document.getElementById('stop-btn').disabled = True
+
+        def reset_stopwatch():
+            global hours, minutes, seconds, running
+            running = False
+            hours = 0
+            minutes = 0
+            seconds = 0
+            update_time_display()
+            document.getElementById('start-btn').disabled = False
+            document.getElementById('stop-btn').disabled = True
+            document.getElementById('reset-btn').disabled = True
+
+    </py-script>
+
+</body>
+</html>
